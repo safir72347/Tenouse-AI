@@ -1,10 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from fastai.basic_train import load_learner
-from fastai.vision import open_image
+from fastai.vision import *
 from flask_cors import CORS,cross_origin
 import os
 import sys
+
+import torch
+from torch import nn
+from torchvision import datasets, transforms, models
+import torchvision.models as models
+import torch.nn.functional as F
+import torchvision.transforms.functional as F
+from torch import optim
+import json
+
+from PIL import *
+import requests
+from io import BytesIO
+
+import numpy as np
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -22,19 +37,31 @@ class classify_house_structure(Resource):
 
     def post(self):
         try:
-            img_file = request.files['image']
+            # Getting data from json
+            data = request.get_json()
+            img_url = data['image']
+
+            # Opening image from url
+            response = requests.get(img_url)
+            img_file = open_image(BytesIO(response.content))
+
             path = os.getcwd()
             path = path + "/Classification/house_structure/"
             learn = load_learner(path=path, file='house_structure_classify_model.pkl')
             classes = learn.data.classes
-            prediction = learn.predict(open_image(img_file))
+
+            # Predicting the image
+            prediction = learn.predict(img_file)
             probs_list = prediction[2].numpy()
             print(classes[prediction[1].item()])
+
+            # Returning the response
             return jsonify({
                 'category': classes[prediction[1].item()],
                 'probs': {c: round(float(probs_list[i]), 5) for (i, c) in enumerate(classes)}
             })
-        except:
+        except Exception as e:
+            print(e)
             return jsonify({
                 'error':"Some Error occurred"
             })
@@ -45,19 +72,32 @@ class classify_house_type(Resource):
 
     def post(self):
         try:
-            img_file = request.files['image']
+            # Getting data from json
+            data = request.get_json()
+            img_url = data['image']
+
+            # Opening image from url
+            response = requests.get(img_url)
+            img_file = open_image(BytesIO(response.content))
+            
             path = os.getcwd()
             path = path + "/Classification/house_type/"
             learn = load_learner(path=path, file='furnished_unfurnished_classify_model.pkl')
             classes = learn.data.classes
-            prediction = learn.predict(open_image(img_file))
+
+            # Predicting the image
+            prediction = learn.predict(img_file)
             probs_list = prediction[2].numpy()
             print(classes[prediction[1].item()])
+
+            # Returning the response
             return jsonify({
                 'category': classes[prediction[1].item()],
                 'probs': {c: round(float(probs_list[i]), 5) for (i, c) in enumerate(classes)}
             })
-        except:
+            
+        except Exception as e:
+            print(e)
             return jsonify({
                 'error':"Some Error occurred"
             })
