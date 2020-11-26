@@ -8,6 +8,9 @@ Created on Thu Nov 26 14:50:55 2020
 
 import random
 import copy
+import requests
+import json
+import time
 
 class DataGenerator:
     def __init__(self):
@@ -20,7 +23,7 @@ class DataGenerator:
         
         self.building = ['https://res.cloudinary.com/safcloud/image/upload/v1606385427/TenouseDataGen/Building/daniel-dinuzzo-qCjolcMFaLI-unsplash_jceqni.jpg', 
                     'https://res.cloudinary.com/safcloud/image/upload/v1606385427/TenouseDataGen/Building/SmartBuilding_iygbxj.jpg', 
-                    'https://res.cloudinary.com/safcloud/image/upload/v1606385426/TenouseDataGen/Building/f5bcc8800cce5935bf4e7b7d73860882_tcqd9z.jpg' 
+                    'https://res.cloudinary.com/safcloud/image/upload/v1606385426/TenouseDataGen/Building/f5bcc8800cce5935bf4e7b7d73860882_tcqd9z.jpg', 
                     'https://res.cloudinary.com/safcloud/image/upload/v1606385426/TenouseDataGen/Building/Building_Wish-Town-696x392_tulu6m.jpg', 
                     'https://res.cloudinary.com/safcloud/image/upload/v1606385426/TenouseDataGen/Building/unnamed_caziu2.jpg']
         
@@ -36,7 +39,7 @@ class DataGenerator:
                      'https://res.cloudinary.com/safcloud/image/upload/v1606386038/TenouseDataGen/Row%20House/921f10825343bdd1f375f7ae5c6897f9_dai7pv.jpg', 
                      'https://res.cloudinary.com/safcloud/image/upload/v1606384560/TenouseDataGen/Row%20House/digital-marketing-agency-ntwrk-g39p1kDjvSY-unsplash_b8qv4h.jpg']
         
-        self.furnished = ['https://res.cloudinary.com/safcloud/image/upload/v1606386917/TenouseDataGen/Furnished/selling-furnished-home_fohp0r.jpg', 
+        self.furnished_house = ['https://res.cloudinary.com/safcloud/image/upload/v1606386917/TenouseDataGen/Furnished/selling-furnished-home_fohp0r.jpg', 
                      'https://res.cloudinary.com/safcloud/image/upload/v1606386917/TenouseDataGen/Furnished/slider02_opktfg.jpg', 
                      'https://res.cloudinary.com/safcloud/image/upload/v1606386917/TenouseDataGen/Furnished/unnamed_st4efr.jpg', 
                      'https://res.cloudinary.com/safcloud/image/upload/v1606386917/TenouseDataGen/Furnished/home-design_jmttuv.jpg', 
@@ -55,7 +58,7 @@ class DataGenerator:
             }
         
         self.house_type_obj = {
-            'Furnished House':self.furnished,
+            'Furnished House':self.furnished_house,
             'Unfurnished House':self.unfurnished_house
             }
         
@@ -106,89 +109,171 @@ class DataGenerator:
         self.roommate_question13 = ['I am a Engineer', 'I am a doctor', 'I am a student', 'I am here as a tourist']
         self.roommate_question14 = ['No']
         
+        # In general
         
+        self.dates_list = ['3-10-2020', '3-22-2020', '4-5-2020', '4-26-2020', '5-21-2020', '6-13-2020', '7-11-2020', '7-27-2020', '7-30-2020', 
+                           '8-2-2020', '8-16-2020', '8-23-2020', '8-26-2020', '9-12-2020', '9-17-2020', '9-29-2020', '10-11-2020', '10-13-2020', 
+                           '10-19-2020', '10-28-2020', '11-12-2020', '11-15-2020']
+        
+        self.registrations_count = [2, 3]
+        
+        # Dynamic Data
+        
+        self.tokens_list = []
+        self.house_posted = 0
+        self.roommate_posted = 0
         
     def house_data(self):
-        print("-------------Generating House Data-------------------")
+        print("\n-------------Generating House Data-------------------")
         
-        house_struct = random.choice(self.house_struct)
-        pic1 = random.choice(self.house_struct_obj[house_struct])
+        all_house_data = []
         
-        house_type = random.choice(self.house_type)
-        interior_pics = copy.deepcopy(self.house_type_obj[house_type])
-        pic2 = random.choice(interior_pics)
-        interior_pics.remove(pic2)
-        pic3 = random.choice(interior_pics)
         
-        question1 = random.choice(self.house_question1)
-        question2 = random.choice(self.house_question2)
-        question3 = random.choice(self.house_question3)
-        question4 = random.choice(self.house_question4)
-        question5 = random.choice(self.house_question5)
-        question6 = random.choice(self.house_question6)
-        question7 = self.house_question7[question6]
-        question8 = random.choice(self.house_question8)
-        question9 = self.house_question9[question6]
+        while(True):
+            
+            if (len(all_house_data)>200):
+                print("------200 house data generated-------")
+                break
         
-        print(house_struct)
-        print(pic1)
-        print(house_type)
-        print(pic2)
-        print(pic3)
-        print(question1)
-        print(question2)
-        print(question3)
-        print(question4)
-        print(question5)
-        print(question6)
-        print(question7)
-        print(question8)
-        print(question9)
+            house_struct = random.choice(self.house_struct)
+            pic1 = random.choice(self.house_struct_obj[house_struct])
+            
+            house_type = random.choice(self.house_type)
+            interior_pics = copy.deepcopy(self.house_type_obj[house_type])
+            pic2 = random.choice(interior_pics)
+            interior_pics.remove(pic2)
+            pic3 = random.choice(interior_pics)
+            
+            question1 = random.choice(self.house_question1)
+            question2 = random.choice(self.house_question2)
+            question3 = random.choice(self.house_question3)
+            question4 = random.choice(self.house_question4)
+            question5 = random.choice(self.house_question5)
+            question6 = random.choice(self.house_question6)
+            question7 = self.house_question7[question6]
+            question8 = random.choice(self.house_question8)
+            question9 = self.house_question9[question6]
+            
+            data_generated = [house_struct, pic1, house_type, pic2, pic3, question1, question2, question3, question4, question5, 
+                              question6, question7, question8, question9]
+            
+            if data_generated not in all_house_data:
+                all_house_data.append(data_generated)
+        
+        
+        print("\n-------------Posting house data using tokens-----------")
+        for token in self.tokens_list:
+            post_count = random.choice(self.registrations_count)
+            for pc in range(post_count):
+                current_house = all_house_data[pc]
+                
+                data = {
+                 "pic1":current_house[1],
+                 "pic2":current_house[3],
+                 "pic3":current_house[4],
+                 "image_cat1":current_house[0],
+                 "image_cat2":current_house[2],
+                 "image_cat3":current_house[2],
+                 "question1":current_house[5],
+                 "question2":current_house[6],
+                 "question3":current_house[7],
+                 "question4":current_house[8],
+                 "question5":current_house[9],
+                 "question6":current_house[10],
+                 "question7":current_house[11],
+                 "question8":current_house[12],
+                 "question9":current_house[13],
+                 "date":random.choice(self.dates_list)
+                 }
+                
+        
+                # Posting on the CreatePost page
+                
+                URL = "http://localhost:5000/verifiedpost"
+                headers = {
+                    "Content-Type":"application/json",
+                    "Authorization":"Bearer "+token
+                    }
+               
+                print("\n----------------Create House Post--------------------------") 
+                print("Sending data : ", data)
+                
+                response = requests.post(URL, headers=headers, json=data)
+                
+                print("Status code: ", response.status_code)
+                print("Printing Entire Post Request")
+                print("Response : ", response.json())
+                
+                all_house_data.remove(current_house)
+                self.house_posted+=1
         
     def roommate_data(self):
-        print("-----------Generating Roommate Data--------------")
-        
-        question1 = random.choice(self.roommate_question1)
-        question2 = random.choice(self.roommate_question2)
-        question3 = random.choice(self.roommate_question3)
-        question4 = random.choice(self.roommate_question4)
-        question5 = random.choice(self.roommate_question5)
-        question6 = random.choice(self.roommate_question6)
-        question7 = random.choice(self.roommate_question7)
-        question8 = random.choice(self.roommate_question8)
-        question9 = random.choice(self.roommate_question9)
-        question10 = random.choice(self.roommate_question10)
-        question11 = random.choice(self.roommate_question11)
-        question12 = random.choice(self.roommate_question12)
-        question13 = random.choice(self.roommate_question13)
-        question14 = random.choice(self.roommate_question14)
-        
-        pic1 = random.choice(self.roommate_pic[question10])
+        print("\n-----------Generating Roommate Data--------------")
         
         
-        print(question1)
-        print(question2)
-        print(question3)
-        print(question4)
-        print(question5)
-        print(question6)
-        print(question7)
-        print(question8)
-        print(question9)
-        print(question10)
-        print(question11)
-        print(question12)
-        print(question13)
-        print(question14)
-        print(pic1)
+        print("\n-------------Posting house data using tokens-----------")
+        for token in self.tokens_list:
+            question1 = random.choice(self.roommate_question1)
+            question2 = random.choice(self.roommate_question2)
+            question3 = random.choice(self.roommate_question3)
+            question4 = random.choice(self.roommate_question4)
+            question5 = random.choice(self.roommate_question5)
+            question6 = random.choice(self.roommate_question6)
+            question7 = random.choice(self.roommate_question7)
+            question8 = random.choice(self.roommate_question8)
+            question9 = random.choice(self.roommate_question9)
+            question10 = random.choice(self.roommate_question10)
+            question11 = random.choice(self.roommate_question11)
+            question12 = random.choice(self.roommate_question12)
+            question13 = random.choice(self.roommate_question13)
+            question14 = random.choice(self.roommate_question14)
+            
+            pic1 = random.choice(self.roommate_pic[question10])
+            
+            data = {
+                 "pic1":pic1,
+                 "question1":question1,
+                 "question2":question2,
+                 "question3":question3,
+                 "question4":question4,
+                 "question5":question5,
+                 "question6":question6,
+                 "question7":question7,
+                 "question8":question8,
+                 "question9":question9,
+                 "question10":question10,
+                 "question11":question11,
+                 "question12":question12,
+                 "question13":question13,
+                 "question14":question14,
+                 "date":random.choice(self.dates_list)
+                 }
+            # Posting on the Roommate Post page
+                
+            URL = "http://localhost:5000/createroommatepost"
+            headers = {
+                "Content-Type":"application/json",
+                "Authorization":"Bearer "+token
+                }
+           
+            print("\n----------------Create Roommate Post--------------------------") 
+            print("Sending data : ", data)
+            
+            response = requests.post(URL, headers=headers, json=data)
+            
+            print("Status code: ", response.status_code)
+            print("Printing Entire Post Request")
+            print("Response : ", response.json())
+            
+            self.roommate_posted+=1
         
     def user_data(self):
-        print("-----------Generating Users--------------")
+        print("\n-----------Generating Users--------------")
         alphas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
         fnames = []
         lnames = []
         while(True):
-            if(len(fnames)>11):
+            if(len(fnames)>200):
                 break
             c1 = random.choice(alphas)
             c2 = random.choice(alphas).lower()
@@ -200,7 +285,7 @@ class DataGenerator:
                 fnames.append(fname)
         
         while(True):
-           if(len(lnames)>11):
+           if(len(lnames)>200):
                break
            c1 = random.choice(alphas)
            c2 = random.choice(alphas).lower()
@@ -210,20 +295,98 @@ class DataGenerator:
            lname = c1+c2+c3+c4+c5
            if lname not in lnames:
                lnames.append(lname)
+                   
+        index = 0
+        for current_register_date in self.dates_list:
+            register_count = random.choice(self.registrations_count)
+            for rc in range(register_count):
+                
+                city = random.choice(self.house_question6)
+                gender = random.choice(self.roommate_question10)
+                pic = random.choice(self.roommate_pic[gender])
+                password = fnames[index]
+                
+                data = {
+                 "firstName":fnames[index],
+                 "lastName":lnames[index],
+                 "fullName":fnames[index] + " " + lnames[index],
+                 "email":fnames[index]+"@gmail.com",
+                 "city":city,
+                 "gender":gender,
+                 "pic":pic,
+                 "password":password,
+                 "date":current_register_date
+                 }
+                
         
-        city = random.choice(self.house_question6)
-        gender = random.choice(self.roommate_question10)
-        pic = random.choice(self.roommate_pic[gender])
-        password = fnames[4]
+                # Posting on the signup page
+                
+                URL = "http://localhost:5000/signup"
+                headers = {
+                    "Content-Type":"application/json"
+                    }
+               
+                print("\n----------------Signup--------------------------") 
+                print("Sending data : ", data)
+                
+                response = requests.post(URL, headers=headers, json=data)
+                
+                print("Status code: ", response.status_code)
+                print("Printing Entire Post Request")
+                print("Response : ", response.json())
         
-        print(fnames[4] + " " + lnames[4])
-        print(city)
-        print(gender)
-        print(pic)
-        print(password)
+        
+                # Posting on the Signin Page
+                
+                print("\n----------------Signin--------------------------")
+                URL = "http://localhost:5000/signin"
+                headers = {
+                    "Content-Type":"application/json"
+                    }
+                
+                data = {
+                    "email":fnames[index]+"@gmail.com",
+                    "password":password
+                    }
+                
+                print("Sending data : ", data)
+                
+                response = requests.post(URL, headers=headers, json=data)
+                
+                print("Status code: ", response.status_code)
+                print("Printing Entire Post Request")
+                print("Response : ", response.json())
+                print("Token Extracted : ", response.json()['token'])
+                
+                self.tokens_list.append(response.json()['token'])
+                
+                index+=1
         
 if __name__=='__main__':
     dg = DataGenerator()
-    dg.house_data()
-    dg.roommate_data()
+    #dg.roommate_data()
     dg.user_data()
+    print("\n-------------------------All Tokens Fetched-----------------------")
+    print(dg.tokens_list)
+    print("\nTotal Registrations Done : ", len(dg.tokens_list))
+    print("\n---------------Sleeping for 60 seconds-------------------")
+    time.sleep(60)
+    print("-------------Done Sleeping. Continuing Script-----------------")
+    print("\n--------- Going for house data-----------")
+    dg.house_data()
+    print("\n-------------------------Houses posted Successfully-----------------------")
+    print('\nTotal House posts : ', dg.house_posted)
+    print("\n---------------Sleeping for 60 seconds-------------------")
+    time.sleep(60)
+    print("-------------Done Sleeping. Continuing Script-----------------")
+    print("\n--------- Going for roommate data-----------")
+    dg.roommate_data()
+    print("\n-------------------------Roommates posted Successfully-----------------------")
+    print('\nTotal Roommate posts : ', dg.roommate_posted)
+    print("\n-------------------------Script Finished Executing Successfully-----------------------")
+    print("\n-----------------Final Status-------------------")
+    print("Total Registrations Done : ", len(dg.tokens_list))
+    print('Total House posts Done : ', dg.house_posted)
+    print('Total Roommate posts Done : ', dg.roommate_posted)
+    print("\nDone")
+    
