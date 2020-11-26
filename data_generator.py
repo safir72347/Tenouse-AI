@@ -364,7 +364,6 @@ class DataGenerator:
         
 if __name__=='__main__':
     dg = DataGenerator()
-    #dg.roommate_data()
     dg.user_data()
     print("\n-------------------------All Tokens Fetched-----------------------")
     print(dg.tokens_list)
