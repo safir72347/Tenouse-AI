@@ -39,7 +39,7 @@ class TenouseData:
                 HousePrice_writer.writerow(final_selected)
                 self.HousePriceDatasetGenerated.append(final_selected)
     
-     # Generating Tenouse Premium data
+    # Generating Tenouse Premium data
     def generate_tenouse_premium_data(self):
          with open('TenousePremium_file.csv', mode='w') as TenousePremium_file:
             TenousePremium_writer = csv.writer(TenousePremium_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -55,19 +55,18 @@ class TenouseData:
         
     # Generating Tenouse Profit Data
     def generate_tenouse_profit_data(self):
-        profit = 100
         with open('TenouseProfit_file.csv', mode='w') as TenouseProfit_file:
             TenouseProfit_writer = csv.writer(TenouseProfit_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             TenouseProfit_writer.writerow(['City', 'Quarter', 'Profit'])
-            for i in range(10):
-                city_selected = random.choice(self.City)
-                quarter_selected = random.choice(self.Quarter)
-                profit1 = profit * 25
-                profit2 = profit * 5
-                profit = random.choice([profit1, profit2])
-                final_selected = [city_selected, quarter_selected, profit]
-                TenouseProfit_writer.writerow(final_selected)
-                self.TenouseProfitDatasetGenerated.append(final_selected)
+            for city in self.City:
+                profit = 100
+                for i in range(10):
+                    city_selected = city
+                    quarter_selected = random.choice(self.Quarter)
+                    profit = profit * random.choice([2, 3, 5, 6])
+                    final_selected = [city_selected, quarter_selected, profit]
+                    TenouseProfit_writer.writerow(final_selected)
+                    self.TenouseProfitDatasetGenerated.append(final_selected)
     
 if __name__=='__main__':
     td = TenouseData()
