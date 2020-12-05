@@ -129,8 +129,10 @@ class classify_tenouse_premium(Resource):
             clf = joblib.load(path+'PremiumModel.pkl')
 
             # Predicting the result
+            # [3, 1, 4] => 0, [1, 1, 4] => 1
             y_pred = clf.predict([main_data_list])
 
+            print(y_pred)
             # Returning the response
             return jsonify({
                 'predictedValue': str(list(y_pred)[0])
@@ -173,6 +175,54 @@ class regress_tenouse_profit(Resource):
             # Predicting the result
             y_pred = sc_y.inverse_transform(reg.predict(sc_X.transform([main_data_list])))
 
+            print(y_pred)
+            # Returning the response
+            return jsonify({
+                'predictedValue': str(list(y_pred)[0])
+            })
+        except Exception as e:
+            print(e)
+            return jsonify({
+                'error':"Some Error occurred"
+            })
+
+class regress_house_price(Resource):
+    def __init__(self):
+        pass
+    
+    def post(self):
+        try:
+            # Getting data from json
+            data = request.get_json()
+            main_data_list = data['main_data']
+
+            # Loading the Classification Model
+            path = os.getcwd()
+            path = path + "/DataAnalysis/"
+            reg = joblib.load(path+'HousePriceModel.pkl')
+
+            # Since StandardScalar uses the attributes from previously fit_transformed data, we need to fir_transform once more to get the output
+            dataset = pd.read_csv(path+'HousePrice_file.csv')
+            city = {'Pune':1, 'Mumbai':2, 'Bangalore':3, 'Hyderabad':4}
+            house_struct = {'Bungalow':1, 'Building':2, 'Row_House':3}
+            house_type = {'Furnished':1, 'Unfurnished':2}
+            dataset['City'] = dataset['City'].map(city)
+            dataset['House Structure'] = dataset['House Structure'].map(house_struct)
+            dataset['House Type'] = dataset['House Type'].map(house_type)
+
+            X = dataset.iloc[:, 0:-1].values
+            y = dataset.iloc[:, -1].values
+            y = y.reshape(len(y),1)
+
+            sc_X = StandardScaler()
+            sc_y = StandardScaler()
+            X = sc_X.fit_transform(X)
+            y = sc_y.fit_transform(y)
+
+            # Predicting the result
+            y_pred = sc_y.inverse_transform(reg.predict(sc_X.transform([main_data_list])))
+
+            print(y_pred)
             # Returning the response
             return jsonify({
                 'predictedValue': str(list(y_pred)[0])
@@ -189,6 +239,7 @@ api.add_resource(classify_house_structure, '/predict_structure')
 api.add_resource(classify_house_type, '/predict_type')
 api.add_resource(classify_tenouse_premium, '/predict_premium')
 api.add_resource(regress_tenouse_profit, '/predict_profit')
+api.add_resource(regress_house_price, '/predict_house_price')
 
 if __name__=='__main__':
     app.run(debug=True, port=8000)
