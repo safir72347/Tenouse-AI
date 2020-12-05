@@ -20,6 +20,17 @@ import requests
 from io import BytesIO
 
 import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+
+import joblib
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -102,11 +113,39 @@ class classify_house_type(Resource):
                 'error':"Some Error occurred"
             })
 
+class classify_tenouse_premium(Resource):
+    def __init__(self):
+        pass
+    
+    def post(self):
+        try:
+            # Getting data from json
+            data = request.get_json()
+            main_data_list = data['main_data']
+
+            # Loading the Classification Model
+            path = os.getcwd()
+            path = path + "/DataAnalysis/"
+            clf = joblib.load(path+'PremiumModel.pkl')
+
+            # Predicting the result
+            y_pred = clf.predict([main_data_list])
+
+            # Returning the response
+            return jsonify({
+                'predictedValue': str(list(y_pred)[0])
+            })
+        except Exception as e:
+            print(e)
+            return jsonify({
+                'error':"Some Error occurred"
+            })
+
 
 api.add_resource(AI, '/')
 api.add_resource(classify_house_structure, '/predict_structure')
 api.add_resource(classify_house_type, '/predict_type')
-
+api.add_resource(classify_tenouse_premium, '/predict_premium')
 
 if __name__=='__main__':
     app.run(debug=True, port=8000)
