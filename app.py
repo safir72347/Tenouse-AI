@@ -54,7 +54,8 @@ class classify_house_structure(Resource):
 
             # Opening image from url
             response = requests.get(img_url)
-            img_file = open_image(BytesIO(response.content))
+            # img_file = open_image(BytesIO(response.content))
+            img_file = Image.open(BytesIO(response.content))
 
             path = os.getcwd()
             path = path + "/Classification/house_structure/"
