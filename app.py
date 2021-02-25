@@ -242,4 +242,5 @@ api.add_resource(regress_tenouse_profit, '/predict_profit')
 api.add_resource(regress_house_price, '/predict_house_price')
 
 if __name__=='__main__':
-    app.run(debug=True, port=8000)
+    app.run(host='0.0.0.0', port=8080)
+    # app.run(debug=True, port=8000)
