@@ -1,18 +1,18 @@
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
-from fastai.basic_train import load_learner
-from fastai.vision import *
+# from fastai.basic_train import load_learner
+# from fastai.vision import *
 from flask_cors import CORS,cross_origin
 import os
 import sys
 
-import torch
-from torch import nn
-from torchvision import datasets, transforms, models
-import torchvision.models as models
-import torch.nn.functional as F
-import torchvision.transforms.functional as F
-from torch import optim
+# import torch
+# from torch import nn
+# from torchvision import datasets, transforms, models
+# import torchvision.models as models
+# import torch.nn.functional as F
+# import torchvision.transforms.functional as F
+# from torch import optim
 import json
 
 from PIL import *
@@ -58,7 +58,8 @@ class classify_house_structure(Resource):
 
             path = os.getcwd()
             path = path + "/Classification/house_structure/"
-            learn = load_learner(path=path, file='house_structure_classify_model.pkl')
+            # learn = load_learner(path=path, file='house_structure_classify_model.pkl')
+            learn = joblib.load(path+'house_structure_classify_model.pkl')
             classes = learn.data.classes
 
             # Predicting the image
@@ -93,7 +94,8 @@ class classify_house_type(Resource):
             
             path = os.getcwd()
             path = path + "/Classification/house_type/"
-            learn = load_learner(path=path, file='furnished_unfurnished_classify_model.pkl')
+            # learn = load_learner(path=path, file='furnished_unfurnished_classify_model.pkl')
+            learn = joblib.load(path+'furnished_unfurnished_classify_model.pkl')
             classes = learn.data.classes
 
             # Predicting the image
