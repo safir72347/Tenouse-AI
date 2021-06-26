@@ -33,6 +33,10 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
+# For Cosine Similarity
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
 import joblib
 
 import pickle
@@ -316,11 +320,64 @@ class Advertisement(Resource):
             print(counts)
             print(ad)
             print(total_reward)
+            print(dataset.values.tolist())
 
             return jsonify({
                 'ad_counts': counts,
                 'ad_selected': str(ad),
-                'total_reward': str(total_reward)
+                'total_reward': str(total_reward),
+                'dataset': dataset.values.tolist()
+            })
+
+        except Exception as e:
+            print(e)
+            return jsonify({
+                'error': "Some Error occurred"
+            })
+
+class cosineSimilarity(Resource):
+    def __init__(self):
+        pass
+    
+    def post(self):
+        try:
+            # Getting data from json
+            data = request.get_json()
+            X = data['X'].lower()
+            Y = data['Y'].lower()
+
+            print("Text 1 : ", X)
+            print("Text 2 : ", Y)
+
+            # tokenization
+            X_list = word_tokenize(X)
+            Y_list = word_tokenize(Y)
+
+            # sw contains the list of stopwords
+            sw = stopwords.words('english')
+            l1 =[];l2 =[]
+
+            # remove stop words from the string
+            X_set = {w for w in X_list if not w in sw}
+            Y_set = {w for w in Y_list if not w in sw}
+
+            # form a set containing keywords of both strings
+            rvector = X_set.union(Y_set)
+            for w in rvector:
+                if w in X_set: l1.append(1) # create a vector
+                else: l1.append(0)
+                if w in Y_set: l2.append(1)
+                else: l2.append(0)
+            c = 0
+
+            # cosine formula
+            for i in range(len(rvector)):
+                    c+= l1[i]*l2[i]
+            cosine = c / float((sum(l1)*sum(l2))**0.5)
+            print("similarity: ", cosine)
+
+            return jsonify({
+                'cosine': str(cosine)
             })
 
         except Exception as e:
@@ -337,7 +394,8 @@ api.add_resource(classify_tenouse_premium, '/predict_premium')
 api.add_resource(regress_tenouse_profit, '/predict_profit')
 api.add_resource(regress_house_price, '/predict_house_price')
 api.add_resource(Advertisement, '/predict_advertisement')
+api.add_resource(cosineSimilarity, '/predict_cosine_similarity')
 
 if __name__=='__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
     # app.run(debug=True, port=8000)
