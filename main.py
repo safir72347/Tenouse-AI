@@ -108,8 +108,8 @@ class classify_house_type(Resource):
             
             path = os.getcwd()
             path = path + "/Classification/house_type/"
-            # learn = load_learner(path=path, file='furnished_unfurnished_classify_model.pkl')
-            learn = joblib.load(path+'furnished_unfurnished_classify_model.pkl')
+            learn = load_learner(path=path, file='furnished_unfurnished_classify_model.pkl')
+            # learn = joblib.load(path+'furnished_unfurnished_classify_model.pkl')
             classes = learn.data.classes
 
             # Predicting the image
